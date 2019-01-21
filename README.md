@@ -1,4 +1,4 @@
-# GNU/Linux Magazine n°222 - Février 2019
+# GNU/Linux Magazine n°222 - Janvier 2019
 
 # Codes sources
 Vous trouverez dans ce dépôt les différents codes sources des articles publiés dans le magazine.
