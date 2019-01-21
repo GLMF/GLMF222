@@ -1,0 +1,72 @@
+#!/bin/bash
+
+readonly PRINTER='HP_Color_LaserJet_CP4020_Series'
+readonly DATA_DIR='/home/login/Documents'
+declare -A readonly FILES=( ['Fic_1']='Mes_fichiers/mon_fichier_1.pdf' ['Fic_2']='PDF_Repository/mon_fichier_2.pdf' ['Fic_3']='PDF_Repository/mon_fichier_3.pdf' )
+
+
+usage() {
+    if [ "${1}" == "help" ]; then
+        echo 'Usage: my_print <number> [color] <key_file>'
+        echo '       <number>   : nombre de copies'
+        echo '       [color]    : si spécifié impression en couleur'
+        echo '       <key_file> : identifiant du fichier à imprimer'
+        echo ''
+        echo 'my_print list : affiche la liste des fichiers référencés'
+        echo ''
+        echo 'my_print help : affiche ce message'
+        exit 0
+    fi
+}
+
+
+# Liste des fichiers référencés
+list() {
+    for file in "${!FILES[@]}"; do
+        echo "${file} - ${FILES[${file}]}"; 
+    done
+}
+
+
+# Impression
+print_file() {
+    local n=${1}
+    local color='mono'
+    local file=''
+
+    if [ "${#}" -eq 3 ]; then
+        color=${2}
+        file=${3}
+    else
+        file=${2}
+    fi
+
+    if [ ! -f ${DATA_DIR}/${FILES[${file}]} ]; then
+        echo "La clé ${file} est invalide !"
+        echo ''
+        echo 'Les clés autorisées sont :'
+        list
+        exit 1
+    fi
+
+    if [ "${color}" == "mono" ]; then
+        echo "Impression de ${n} copie(s) de ${DATA_DIR}/${FILES[${file}]} en noir et blanc"
+        lp -d ${PRINTER} -n ${n} -o sides=two-sided-long-edge -o PrintoutMode=High.Gray -o PageSize=A4,Upper -o fit-to-page ${DATA_DIR}/${FILES[${file}]}
+    elif [ "${color}" == "color" ]; then
+        echo "Impression de ${n} copie(s) de ${DATA_DIR}/${FILES[${file}]} en couleur"
+        lp -d ${PRINTER} -n ${n} -o sides=two-sided-long-edge -o PrintoutMode=High -o PageSize=A4,Upper -o fit-to-page ${DATA_DIR}/${FILES[${file}]}
+    else
+        echo "Couleur '${color}' inconnue (color pour impression en couleur ou rien pour impression en noir et blanc)!"
+        exit 2
+    fi
+}
+
+
+usage ${1}
+if [ "${1}" == 'list' ]; then
+    list
+elif [ "${#}" -lt 4 ]; then
+    print_file "${@}"
+else
+    usage 'help'
+fi
